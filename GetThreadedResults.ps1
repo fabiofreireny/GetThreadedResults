@@ -7,17 +7,14 @@ This script will scan all machines in a given list and whatever is specified by 
 What sets this script apart is that it uses jobs, so multiple queries run in parallel
 
 .EXAMPLE
-Get-Content computerList.txt | GetThreadedResults -scriptPath .\jobScript.ps1
+.\GetThreadedResults.ps1 -targetList (get-content .\targetList.txt) -scriptPath .\JobScript.ps1
 #>
 
 Param(
-    [Parameter(Mandatory=$True,ValueFromPipeline=$True,Position=0,
-    HelpMessage="Array of computer names.")]
-        [string[]]$targetList,
-
-    [Parameter(Mandatory=$True,Position=1)]
-        [string]$scriptPath
+    [string[]]$targetList,
+    [string]$scriptPath
 )
+
 
 #initialize variables
 $aggregate = @()
@@ -37,14 +34,9 @@ get-job | Wait-Job | Out-Null
 
 Write-Verbose "Assembling results..."
 Get-Job | % {
-    $result = Receive-Job  $_
+    $result = Receive-Job $_ -AutoRemoveJob -Wait
     
-    $hash = [ordered]@{
-        "Hostname" = $result[0]
-        "RAM (MB)" = $result[1]
-    }
-    
-    $aggregate += (New-Object PSObject -Property $hash)
+    $aggregate += (New-Object PSObject -Property $result)
 }    
 
 $aggregate
