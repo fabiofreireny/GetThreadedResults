@@ -1,6 +1,6 @@
 ﻿$boxName = $args[0]
 
-if ((Test-Connection -ComputerName $boxname -Count 1 -Quiet)) {
+if ((Test-Connection -ComputerName $boxname -Count 1 -Quiet -ErrorAction SilentlyContinue)) {
 
     $hash = [ordered]@{
         "Hostname"   = (gwmi -ComputerName $boxName -Class Win32_ComputerSystem).Name
