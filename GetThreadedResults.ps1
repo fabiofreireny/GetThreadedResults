@@ -3,7 +3,7 @@
 Retrieve data from multiple computers
 
 .DESCRIPTION
-This script will scan all machines in a given array and execute whatever is specified by $scriptPath
+This script will execute whatever is specified by $scriptPath on each machine in $targetList
 What sets this script apart is that it uses jobs, so queries run in parallel
 
 .EXAMPLE
@@ -27,27 +27,24 @@ Begin {
     Get-Job | Remove-Job -Force
 
     Write-Verbose "Launching Jobs..."
+} 
 
-} Process {
+Process {
 
     $targetList | % {
         $boxName = $_
         #$boxName
         Start-Job -FilePath $scriptPath -ArgumentList $boxName -Name $boxName | Out-Null
     }
+} 
 
-} End {
+End {
 
     Write-Verbose "Waiting for jobs to complete..."
-    get-job | Wait-Job | Out-Null
 
-    Write-Verbose "Assembling results..."
-    Get-Job | % {
-        $result = Receive-Job $_ -AutoRemoveJob -Wait
-    
-        $aggregate += (New-Object PSObject -Property $result)
+    $aggregate = Get-Job | % {
+        [PSCustomObject](Receive-Job $_ -AutoRemoveJob -Wait)
     }    
 
     $aggregate
-
 }

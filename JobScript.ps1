@@ -2,10 +2,14 @@
 
 if ((Test-Connection -ComputerName $boxname -Count 1 -Quiet -ErrorAction SilentlyContinue)) {
 
+    $os = (Get-CimInstance -ComputerName $boxName -Class Win32_OperatingSystem)
+    $cs = (Get-CimInstance -ComputerName $boxName -Class Win32_ComputerSystem)
+
     $hash = [ordered]@{
-        "Hostname"   = (gwmi -ComputerName $boxName -Class Win32_ComputerSystem).Name
-        "RAM (MB)"   = [math]::round((gwmi -ComputerName $boxName -Class Win32_ComputerSystem).TotalPhysicalMemory / 1MB, 2)
-        "OS Version" = (gwmi -ComputerName $boxName -Class Win32_OperatingSystem).Version
+        "Hostname"   =               $cs.Name
+        "RAM (MB)"   = [math]::round($cs.TotalPhysicalMemory / 1MB, 2)
+        "OS Version" =               $os.Version
+        "Last Boot"  =               $os.LastBootUpTime
     }
 
 } else {
@@ -14,6 +18,7 @@ if ((Test-Connection -ComputerName $boxname -Count 1 -Quiet -ErrorAction Silentl
         "Hostname"   = $boxName
         "RAM (MB)"   = "Unknown"
         "OS Version" = "Unknown"
+        "Last Boot"  = "Unknown"
     }
 }
 
