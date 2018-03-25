@@ -27,7 +27,7 @@ Begin {
     Get-Job | Remove-Job -Force
 
     Write-Verbose "Launching Jobs..."
-} 
+}
 
 Process {
 
@@ -36,15 +36,17 @@ Process {
         #$boxName
         Start-Job -FilePath $scriptPath -ArgumentList $boxName -Name $boxName | Out-Null
     }
-} 
+}
 
 End {
 
     Write-Verbose "Waiting for jobs to complete..."
 
+    Write-Progress -Activity "Waiting for Jobs to complete" -Status "$((get-job -state running).count) jobs running"
+
     $aggregate = Get-Job | % {
         [PSCustomObject](Receive-Job $_ -AutoRemoveJob -Wait)
-    }    
+    }
 
     $aggregate
 }
