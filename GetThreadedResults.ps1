@@ -18,6 +18,7 @@ Param(
     [string]$scriptPath
 )
 
+#Note to self: even though jobs run on remote machines, the jobs themselves are local. If I create a pssession first then invoke-command {start-job...} the jobs will be remote. May scale better, I don't know
 Begin {
 
     #initialize variables
